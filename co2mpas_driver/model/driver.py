@@ -41,3 +41,23 @@ class Driver:
         if update:
             self._gear, self._gear_count, self._velocity, self.position = g, gc, v, s
         return g, v, a, s
+
+    def redef_ids(self, dt, desired_velocity, ids_new, update=True):
+        from .simulation import (
+            gear_for_speed_profiles, accMFC, correct_acc_clutch_on
+        )
+        g, gc = gear_for_speed_profiles(
+            self.gs, self._velocity, self._gear, self._gear_count
+        )
+
+        a = correct_acc_clutch_on(gc, accMFC(
+            self._velocity, ids_new, desired_velocity,
+            self.curves[g - 1]
+        ), self.transmission)
+        v = self._velocity + a * dt
+        s = self.position + self._velocity * dt + 0.5 * a * dt ** 2
+        if update:
+            self._gear, self._gear_count, self._velocity, self.position = g, gc, v, s
+        return g, v, a, s
+
+    
