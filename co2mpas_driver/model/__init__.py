@@ -31,6 +31,8 @@ dsp.add_func(
     outputs=['full_load_torques']
 )
 
+dsp.add_data('save_file', True)
+dsp.add_data('path_to_save', 'C:/Users/dimit/Desktop/')
 
 # Speed and acceleration ranges and points for each gear
 @sh.add_function(dsp, outputs=['speed_per_gear', 'acc_per_gear'])
@@ -585,7 +587,7 @@ def calculate_deceleration_curves_to_use(sp_bins):
 
 
 @sh.add_function(dsp, outputs=['discrete_acceleration_curves'])
-def define_discrete_acceleration_curves(curves, start, stop):
+def define_discrete_acceleration_curves(curves, start, stop, save_file, path_to_save):
     """
     Define discrete acceleration curves.
 
@@ -607,6 +609,15 @@ def define_discrete_acceleration_curves(curves, start, stop):
     for gear, f in enumerate(curves):
         x = np.arange(start[gear], stop[gear], 0.2)
         res.append(dict(x=x, y=f(x)))
+
+    if save_file and path_to_save:
+        import pandas as pd
+
+        _res = [{'x': list(res[i]['x']), 'y': list(res[i]['y'])} for i in range(len(res))]
+        df = pd.DataFrame.from_records(_res)
+        df.columns = ['velocities', 'accelerations']
+        df.to_excel(path_to_save + 'discrete_acceleration_curves.xlsx')
+
     return res
 
 
@@ -638,7 +649,7 @@ def define_discrete_deceleration_curves(curves_dec, start, stop):
 
 # Extract speed acceleration Splines
 @sh.add_function(dsp, inputs_kwargs=True, inputs_defaults=True, outputs=['gs'])
-def gear_linear(speed_per_gear_updated, gear_shifting_style,
+def gear_linear(speed_per_gear_updated, gear_shifting_style, save_file, path_to_save,
                 use_linear_gs=True):
     """
     Return the gear limits based on gear_shifting_style, using linear gear
@@ -677,6 +688,12 @@ def gear_linear(speed_per_gear_updated, gear_shifting_style,
         cutoff_s = max(speed_by_gs, speed_for_continuity)
 
         gs.append(cutoff_s)
+
+    if save_file and path_to_save:
+        import pandas as pd
+        df = pd.DataFrame(gs)
+        df.columns = ['gear_shift_limits']
+        df.to_excel(path_to_save + 'gs.xlsx')
 
     return gs
 
