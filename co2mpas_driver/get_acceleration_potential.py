@@ -55,10 +55,25 @@ else:
     test_data.to_csv(filename_to_write + '.dat', sep=' ', header=show_header_in_export, index=False, )
 
 if plot_vars:
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(ncols=2)
     for i in range(len(discrete_accelerations)):
-        ax.plot(discrete_speeds[i], discrete_accelerations[i])
+        ax[0].plot(discrete_speeds[i], discrete_accelerations[i])
     for i in np.arange(1, len(gs), 1):
-        ax.axvline(x=gs[i])
-    ax.scatter(test_velocities, test_potential_accelerations)
+        ax[0].axvline(x=gs[i])
+    ax[0].scatter(test_velocities, test_potential_accelerations)
+    ax[0].set_ylabel('Acceleration [m/s^2]')
+    ax[0].set_xlabel('Speed [m/s]')
+
+    ax[1].plot(test_data['times'].values,
+               test_data['accelerations'].values, 'r--', label='accelerations')
+    ax[1].set_ylabel('Acceleration [m/s^2]', color='r')
+    ax[1].set_xlabel('Time [s]')
+    ax2 = ax[1].twinx()
+    ds_median = round(np.median(test_data['DS'].values), 2)
+    ax2.plot(test_data['times'].values,
+             test_data['DS'].values, 'g-', label='DS\nmedian: %s'%(ds_median))
+    ax2.set_ylabel('DS [-]', color='g')
+    ax[1].legend(loc=2); ax2.legend(loc=1)
+
+    plt.tight_layout()
     plt.show()
