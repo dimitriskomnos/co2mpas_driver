@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 ############################ USER INPUTS #########################################
 path = 'C:/Users/dimit/Desktop/jaime_sims/test_ds_script/'
+gs_file_name = '20201009_103023_gs_0.35_vehID_88888.xlsx'
+discrete_acceleration_curves_file_name = '20201009_103023_discrete_acceleration_curves_gs_0.35_vehID_88888.xlsx'
 test_velocities_file_path = 'c:/Users/dimit/Desktop/jaime_sims/test_ds_script/velocities.dat'
 plot_vars = True
 save_to_dat_file = True
@@ -19,9 +21,9 @@ test_velocities = test_data['velocities'].values
 test_times = test_data['times'].values
 
 
-gs = list(pd.read_excel(path + 'gs.xlsx')['gear_shift_limits'].values)
+gs = list(pd.read_excel(path + gs_file_name)['gear_shift_limits'].values)
 gs = [0.] + gs
-discrete_acceleration_curves = pd.read_excel(path + 'discrete_acceleration_curves.xlsx')
+discrete_acceleration_curves = pd.read_excel(path + discrete_acceleration_curves_file_name)
 
 vels = discrete_acceleration_curves['velocities'].values
 accs = discrete_acceleration_curves['accelerations'].values
@@ -69,7 +71,7 @@ if plot_vars:
     ax[1].set_ylabel('Acceleration [m/s^2]', color='r')
     ax[1].set_xlabel('Time [s]')
     ax2 = ax[1].twinx()
-    ds_median = round(np.median(test_data['DS'].values), 2)
+    ds_median = round(np.median(test_data['DS'].values), 3)
     ax2.plot(test_data['times'].values,
              test_data['DS'].values, 'g-', label='DS\nmedian: %s'%(ds_median))
     ax2.set_ylabel('DS [-]', color='g')

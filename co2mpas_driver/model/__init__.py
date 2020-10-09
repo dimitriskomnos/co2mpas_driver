@@ -32,7 +32,15 @@ dsp.add_func(
 )
 
 dsp.add_data('save_file', True)
-dsp.add_data('path_to_save', 'C:/Users/dimit/Desktop/')
+dsp.add_data('path_to_save', 'C:/Users/dimit/Desktop/jaime_sims/test_ds_script/')
+
+
+@sh.add_function(dsp, outputs=['date_time'])
+def get_simulation_date_time():
+    from datetime import datetime
+    now = datetime.now()
+    return now.strftime("%Y%m%d_%H%M%S")
+
 
 # Speed and acceleration ranges and points for each gear
 @sh.add_function(dsp, outputs=['speed_per_gear', 'acc_per_gear'])
@@ -587,7 +595,8 @@ def calculate_deceleration_curves_to_use(sp_bins):
 
 
 @sh.add_function(dsp, outputs=['discrete_acceleration_curves'])
-def define_discrete_acceleration_curves(curves, start, stop, save_file, path_to_save):
+def define_discrete_acceleration_curves(curves, start, stop,
+                                        save_file, path_to_save, gear_shifting_style, vehicle_id, date_time):
     """
     Define discrete acceleration curves.
 
@@ -616,7 +625,8 @@ def define_discrete_acceleration_curves(curves, start, stop, save_file, path_to_
         _res = [{'x': list(res[i]['x']), 'y': list(res[i]['y'])} for i in range(len(res))]
         df = pd.DataFrame.from_records(_res)
         df.columns = ['velocities', 'accelerations']
-        df.to_excel(path_to_save + 'discrete_acceleration_curves.xlsx')
+        df.to_excel(path_to_save + date_time + '_discrete_acceleration_curves_gs_%s_vehID_%s.xlsx'%(gear_shifting_style,
+                                                                                                   vehicle_id))
 
     return res
 
@@ -649,7 +659,7 @@ def define_discrete_deceleration_curves(curves_dec, start, stop):
 
 # Extract speed acceleration Splines
 @sh.add_function(dsp, inputs_kwargs=True, inputs_defaults=True, outputs=['gs'])
-def gear_linear(speed_per_gear_updated, gear_shifting_style, save_file, path_to_save,
+def gear_linear(speed_per_gear_updated, gear_shifting_style, save_file, path_to_save, vehicle_id, date_time,
                 use_linear_gs=True):
     """
     Return the gear limits based on gear_shifting_style, using linear gear
@@ -693,7 +703,7 @@ def gear_linear(speed_per_gear_updated, gear_shifting_style, save_file, path_to_
         import pandas as pd
         df = pd.DataFrame(gs)
         df.columns = ['gear_shift_limits']
-        df.to_excel(path_to_save + 'gs.xlsx')
+        df.to_excel(path_to_save + date_time + '_gs_%s_vehID_%s.xlsx'%(gear_shifting_style, vehicle_id))
 
     return gs
 

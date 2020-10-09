@@ -181,7 +181,9 @@ def get_vehicle_inputs(vehicle_id, vehicle_db):
         Vehicle inputs.
     :rtype: dict
     """
-    return vehicle_db[vehicle_id]
+    d = vehicle_db[vehicle_id]
+    d['vehicle_id'] = vehicle_id
+    return d
 
 
 dsp.add_data('inputs', {}, sh.inf(2, 0))
