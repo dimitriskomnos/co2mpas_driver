@@ -147,7 +147,7 @@ def Armax(car_type, veh_mass, engine_max_power, road_type=1):
 
 
 # Calculates a spline with the resistances
-def veh_resistances(f0, f1, f2, sp_bins, total_mass):
+def veh_resistances(f0, f1, f2, sp_bins, total_mass, g=9.81, angle_slopes=0.):
     """
     Calculate the resistances that a vehicle faces, per speed.
 
@@ -179,8 +179,11 @@ def veh_resistances(f0, f1, f2, sp_bins, total_mass):
     sp_bins = list(sp_bins)
     resistance_force = []
     for i in range(len(sp_bins)):
-        resistance_force.append(f0 + f1 * sp_bins[i] * 3.6 + f2 * pow(sp_bins[i] * 3.6, 2))
+        resistance_force.append(f0 * np.cos(angle_slopes) + \
+                                     f1 * sp_bins[i] * 3.6 + f2 * pow(sp_bins[i] * 3.6, 2) + \
+                                     total_mass * g * np.sin(angle_slopes))
         # Facc = Fmax @ wheel - f0 * cos(a) - f1 * v - f2 * v2 - m * g * sin(a)
+        # F @ wheel = m * acceleration = f0 * cos(a) + f1 * v + f2 * v2 + m * g * sin(a)
 
     approximate_mass = int(total_mass)
     acc_resistance = [x / approximate_mass for x in resistance_force]
