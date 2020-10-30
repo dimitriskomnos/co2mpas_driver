@@ -33,6 +33,7 @@ dsp.add_func(
 
 dsp.add_data('save_file', True)
 dsp.add_data('path_to_save', 'C:/Users/dimit/Desktop/jaime_sims/test_ds_script/')
+dsp.add_data('angle_slopes', 0.)
 
 
 @sh.add_function(dsp, outputs=['date_time'])
@@ -439,7 +440,7 @@ def define_discrete_car_res_curve(car_res_curve, sp_bins):
 
 
 @sh.add_function(dsp, outputs=['car_res_curve', 'car_res_curve_force'])
-def get_resistances(type_of_car, vehicle_mass, car_width, car_height, sp_bins):
+def get_resistances(type_of_car, vehicle_mass, car_width, car_height, sp_bins, angle_slopes):
     """
     Calculate resistances and return spline.
 
@@ -472,7 +473,7 @@ def get_resistances(type_of_car, vehicle_mass, car_width, car_height, sp_bins):
     f0, f1, f2 = estimate_f_coefficients(
         vehicle_mass, type_of_car, car_width, car_height
     )
-    return veh_resistances(f0, f1, f2, sp_bins, vehicle_mass)
+    return veh_resistances(f0, f1, f2, sp_bins, vehicle_mass, angle_slopes=angle_slopes)
 
 
 # The maximum force that the vehicle can have on the road
