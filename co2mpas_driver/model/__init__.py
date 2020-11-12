@@ -439,26 +439,53 @@ def define_discrete_car_res_curve(car_res_curve, sp_bins):
     return car_res_curve(sp_bins)
 
 
+@sh.add_function(dsp, outputs=['f0', 'f1', 'f2'])
+def calculate_road_loads(type_of_car, vehicle_mass, car_width, car_height, ):
+    """
+        Calculate resistances and return spline.
+
+        :param type_of_car:
+            Type of car.
+        :type type_of_car: str
+
+        :param vehicle_mass:
+            Vehicle mass.
+        :type vehicle_mass: float
+
+        :param car_width:
+            Car width.
+        :type car_width: float
+
+        :param car_height:
+            Car height.
+        :type car_height: float
+
+        :return:
+            road load coefficients.
+        :rtype: tuple
+        """
+    from .co2mpas import estimate_f_coefficients
+    f0, f1, f2 = estimate_f_coefficients(
+        vehicle_mass, type_of_car, car_width, car_height
+    )
+    return f0, f1, f2
+
 @sh.add_function(dsp, outputs=['car_res_curve', 'car_res_curve_force'])
-def get_resistances(type_of_car, vehicle_mass, car_width, car_height, sp_bins, angle_slopes):
+def get_resistances(vehicle_mass, f0, f1, f2, sp_bins, angle_slopes):
     """
     Calculate resistances and return spline.
 
-    :param type_of_car:
-        Type of car.
-    :type type_of_car: str
+    :param f0:
+        f0 coeff.
+    :type float
 
-    :param vehicle_mass:
-        Vehicle mass.
-    :type vehicle_mass: float
+    :param f1:
+        f1 coeff.
+    :type float
 
-    :param car_width:
-        Car width.
-    :type car_width: float
-
-    :param car_height:
-        Car height.
-    :type car_height: float
+    :param f2:
+        f2 coeff.
+    :type float
 
     :param sp_bins:
         Speed boundaries.
@@ -468,11 +495,7 @@ def get_resistances(type_of_car, vehicle_mass, car_width, car_height, sp_bins, a
         Car resistance curve.
     :rtype: tuple[scipy.interpolate._cubic.CubicSpline]
     """
-
-    from .co2mpas import estimate_f_coefficients, veh_resistances, Armax
-    f0, f1, f2 = estimate_f_coefficients(
-        vehicle_mass, type_of_car, car_width, car_height
-    )
+    from .co2mpas import veh_resistances
     return veh_resistances(f0, f1, f2, sp_bins, vehicle_mass, angle_slopes=angle_slopes)
 
 
